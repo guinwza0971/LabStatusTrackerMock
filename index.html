@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบติดตามงานวิเคราะห์ทดสอบ (Laboratory Tracking System)</title>
+    <!-- โหลด Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- โหลด Font Prompt สำหรับภาษาไทยที่สวยงามและทันสมัย -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- โหลด Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s infinite alternate',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.7)' },
+                            '100%': { boxShadow: '0 0 0 12px rgba(16, 185, 129, 0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <!-- Navbar / Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-md shadow-emerald-200">
+                    <i data-lucide="flask-conical" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg sm:text-xl text-slate-900 leading-tight">ระบบติดตามสถานะงานวิเคราะห์ทดสอบ</h1>
+                    <p class="text-xs text-slate-500 hidden sm:block">Laboratory Sample & Analysis Tracking System</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>Mockup Mode</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        
+        <!-- Search Box Section -->
+        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-6 sm:p-8 mb-8 transition-all">
+            <div class="text-center max-w-xl mx-auto mb-6">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">ตรวจสอบสถานะตัวอย่างของคุณ</h2>
+                <p class="text-slate-500 text-sm sm:text-base">กรอกรหัสงานวิเคราะห์ทดสอบ (Job ID) เพื่อติดตามความคืบหน้าแบบเรียลไทม์</p>
+            </div>
+
+            <!-- Form Input -->
+            <form id="trackingForm" class="max-w-lg mx-auto">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="jobIdInput" 
+                            value="0000/2570" 
+                            placeholder="ระบุรหัสงาน เช่น 0000/2570" 
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-medium text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-all"
+                            required
+                        >
+                    </div>
+                    <button 
+                        type="submit" 
+                        class="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                    >
+                        <span>ติดตาม</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Quick Select Mock IDs (สำหรับทดสอบระบบง่ายๆ) -->
+            <div class="max-w-2xl mx-auto mt-6 pt-5 border-t border-slate-100">
+                <p class="text-xs font-medium text-slate-400 text-center mb-3">คลิกเลือกรหัสจำลอง (Mock Data) เพื่อดูสถานะต่างๆ:</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <button type="button" onclick="selectMockId('0000/2570')" class="mock-btn text-left p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group">
+                        <div class="font-bold text-sm text-slate-800 group-hover:text-emerald-700">0000/2570</div>
+                        <div class="text-[11px] text-slate-500 truncate">กำลังทดสอบ</div>
+                    </button>
+                    <button type="button" onclick="selectMockId('0001/2570')" class="mock-btn text-left p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group">
+                        <div class="font-bold text-sm text-slate-800 group-hover:text-emerald-700">0001/2570</div>
+                        <div class="text-[11px] text-slate-500 truncate">รอชำระเงิน</div>
+                    </button>
+                    <button type="button" onclick="selectMockId('0002/2570')" class="mock-btn text-left p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group">
+                        <div class="font-bold text-sm text-slate-800 group-hover:text-emerald-700">0002/2570</div>
+                        <div class="text-[11px] text-slate-500 truncate">รอส่งมอบผล</div>
+                    </button>
+                    <button type="button" onclick="selectMockId('0003/2570')" class="mock-btn text-left p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group">
+                        <div class="font-bold text-sm text-slate-800 group-hover:text-emerald-700">0003/2570</div>
+                        <div class="text-[11px] text-slate-500 truncate">ส่งมอบผลแล้ว</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message Box (ซ่อนไว้เป็นค่าเริ่มต้น) -->
+        <div id="errorBox" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-6 text-center mb-8 shadow-sm">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="alert-circle" class="w-6 h-6"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-1">ไม่พบข้อมูลรหัสงานวิเคราะห์ทดสอบ</h3>
+            <p class="text-sm text-rose-600">กรุณาตรวจสอบรหัสอีกครั้ง หรือเลือกรหัสตัวอย่างจากปุ่มด้านบน (0000/2570 - 0003/2570)</p>
+        </div>
+
+        <!-- Result & Process Flow Section (ซ่อนไว้จนกว่าจะกดติดตาม) -->
+        <div id="resultSection" class="hidden space-y-6 transition-all duration-300">
+            
+            <!-- Sample Details Card -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">รหัสงานวิเคราะห์ทดสอบ</span>
+                        <h3 id="displayJobId" class="text-2xl font-bold text-slate-900 mt-1">0000/2570</h3>
+                    </div>
+                    <div class="sm:text-right">
+                        <span class="text-xs text-slate-400 block">สถานะปัจจุบัน</span>
+                        <span id="displayCurrentStatusBadge" class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full mt-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
+                            อยู่ในระหว่างการทดสอบ
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-sm">
+                    <div>
+                        <span class="text-slate-400 block text-xs">ชื่อตัวอย่าง (Sample Name)</span>
+                        <span id="displaySampleName" class="font-medium text-slate-800">-</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs">ผู้ส่งตัวอย่าง / หน่วยงาน</span>
+                        <span id="displayClient" class="font-medium text-slate-800">-</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs">วันที่รับเข้าระบบ</span>
+                        <span id="displayDate" class="font-medium text-slate-800">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Flow Card -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 sm:p-10">
+                <div class="flex items-center justify-between mb-8">
+                    <h4 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                        <i data-lucide="git-commit-horizontal" class="w-5 h-5 text-emerald-600"></i>
+                        ขั้นตอนการดำเนินงาน (Process Flow)
+                    </h4>
+                    
+                    <!-- Legend อธิบายสัญลักษณ์ -->
+                    <div class="hidden sm:flex items-center gap-4 text-xs text-slate-500">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <span>เสร็จสิ้น</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+                            <span>กำลังดำเนินการ</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-slate-200"></span>
+                            <span>รอดำเนินการ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stepper Container -->
+                <div class="relative">
+                    <!-- Desktop Horizontal Connecting Line (Background) -->
+                    <div class="hidden md:block absolute top-7 left-[12%] right-[12%] h-1.5 bg-slate-100 rounded-full z-0"></div>
+                    <!-- Desktop Horizontal Connecting Line (Active Progress) -->
+                    <div id="desktopProgressLine" class="hidden md:block absolute top-7 left-[12%] h-1.5 bg-emerald-500 rounded-full z-0 transition-all duration-700" style="width: 0%;"></div>
+
+                    <!-- 4 Steps Grid -->
+                    <div id="stepsContainer" class="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 relative z-10">
+                        <!-- Steps will be dynamically injected here by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Database Simulator Box (ลูกเล่นเสริมให้ผู้ใช้ลองกดอัปเดตสถานะจำลองฝั่ง Database ได้) -->
+                <div class="mt-10 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-slate-200 text-slate-700 rounded-lg">
+                            <i data-lucide="database" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-700">จำลองการอัปเดตจากฐานข้อมูล (Database Simulator)</p>
+                            <p class="text-[11px] text-slate-500">ทดลองเปลี่ยนสถานะของรหัสปัจจุบันเพื่อดูการเปลี่ยนแปลงของไฟกระพริบ</p>
+                        </div>
+                    </div>
+                    <button 
+                        type="button" 
+                        id="simulateNextBtn"
+                        onclick="simulateDatabaseUpdate()" 
+                        class="w-full sm:w-auto text-xs font-semibold bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                        <span>อัปเดตสถานะถัดไป</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <p>© 2027 ระบบติดตามงานวิเคราะห์ทดสอบ (Mockup Prototype) • พัฒนาเพื่อการจำลองกระบวนการทำงาน</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // ข้อมูลจำลอง (Mock Database) ตามที่ระบุในโจทย์ 4 รหัส
+        const mockDatabase = {
+            '0000/2570': {
+                id: '0000/2570',
+                sampleName: 'ตัวอย่างน้ำทิ้งอุตสาหกรรม (Waste Water)',
+                client: 'บริษัท เอบีซี แมนูแฟคเจอริ่ง จำกัด',
+                receivedDate: '26 พ.ย. 2569',
+                // stage 1 = เพิ่งรับตัวอย่าง -> ขั้นที่ 1 เขียวค้าง, ขั้นที่ 2 เขียวกระพริบ, ขั้นที่ 3-4 จาง
+                stage: 1, 
+                statusText: 'อยู่ในระหว่างการทดสอบ',
+                timestamps: ['26 พ.ย. 69 09:00', 'กำลังดำเนินการ...', '-', '-']
+            },
+            '0001/2570': {
+                id: '0001/2570',
+                sampleName: 'ตัวอย่างดินปนเปื้อนโลหะหนัก (Soil Sample)',
+                client: 'หจก. สยามสิ่งแวดล้อม',
+                receivedDate: '24 พ.ย. 2569',
+                // stage 2 = ทดสอบเสร็จแล้ว -> ขั้นที่ 1-2 เขียวค้าง, ขั้นที่ 3 เขียวกระพริบ (รอชำระเงิน), ขั้นที่ 4 จาง
+                stage: 2,
+                statusText: 'ทดสอบเสร็จแล้ว รอชำระเงิน',
+                timestamps: ['24 พ.ย. 69 10:15', '26 พ.ย. 69 08:30', 'รอชำระเงิน...', '-']
+            },
+            '0002/2570': {
+                id: '0002/2570',
+                sampleName: 'ตัวอย่างอาหารแปรรูป (จุลชีววิทยา)',
+                client: 'บริษัท ไทยฟู้ดส์ โปรดักส์ จำกัด',
+                receivedDate: '22 พ.ย. 2569',
+                // stage 3 = ชำระเงินแล้ว -> ขั้นที่ 1-3 เขียวค้าง, ขั้นที่ 4 เขียวกระพริบ (รอส่งมอบผล)
+                stage: 3,
+                statusText: 'ชำระเงินแล้ว รอส่งมอบผล',
+                timestamps: ['22 พ.ย. 69 13:45', '25 พ.ย. 69 14:20', '26 พ.ย. 69 09:10', 'กำลังจัดเตรียมเอกสาร...']
+            },
+            '0003/2570': {
+                id: '0003/2570',
+                sampleName: 'ตัวอย่างอากาศในสถานประกอบการ (Air Quality)',
+                client: 'บริษัท อินดัสเทรียล เซฟตี้ จำกัด',
+                receivedDate: '20 พ.ย. 2569',
+                // stage 4 = ส่งมอบผลแล้ว -> ขั้นที่ 1-4 เขียวค้างทั้งหมด (เลิกกระพริบ)
+                stage: 4,
+                statusText: 'ส่งมอบผลการทดสอบเรียบร้อยแล้ว',
+                timestamps: ['20 พ.ย. 69 08:50', '23 พ.ย. 69 16:00', '24 พ.ย. 69 11:30', '25 พ.ย. 69 15:45']
+            }
+        };
+
+        // ข้อมูลโครงสร้างของ 4 ขั้นตอนหลัก
+        const stepDefinitions = [
+            {
+                stepNumber: 1,
+                title: 'รับตัวอย่างเข้าระบบ',
+                subtitle: 'ลงทะเบียนและตรวจสอบสภาพตัวอย่าง',
+                icon: 'package-check'
+            },
+            {
+                stepNumber: 2,
+                title: 'อยู่ในระหว่างการทดสอบ',
+                subtitle: 'ดำเนินการวิเคราะห์ในห้องปฏิบัติการ',
+                icon: 'microscope'
+            },
+            {
+                stepNumber: 3,
+                title: 'ทดสอบเสร็จแล้ว รอชำระเงิน',
+                subtitle: 'ออกใบแจ้งหนี้และรอตรวจสอบยอดชำระ',
+                icon: 'credit-card'
+            },
+            {
+                stepNumber: 4,
+                title: 'พร้อมส่งมอบผลการทดสอบ',
+                subtitle: 'จัดทำรายงานผลและส่งมอบให้ลูกค้า',
+                icon: 'file-check-2'
+            }
+        ];
+
+        let currentActiveJobId = null;
+
+        // เริ่มต้นการทำงานเมื่อโหลดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // ผูก Event กับฟอร์มค้นหา
+            const form = document.getElementById('trackingForm');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const inputVal = document.getElementById('jobIdInput').value.trim();
+                trackJob(inputVal);
+            });
+        });
+
+        // ฟังก์ชันเมื่อคลิกปุ่มรหัสตัวอย่างด่วน
+        function selectMockId(id) {
+            document.getElementById('jobIdInput').value = id;
+            trackJob(id);
+        }
+
+        // ฟังก์ชันหลักสำหรับค้นหาและแสดงผล Process Flow
+        function trackJob(jobId) {
+            const errorBox = document.getElementById('errorBox');
+            const resultSection = document.getElementById('resultSection');
+            
+            // ค้นหาข้อมูลใน Mock Database
+            const jobData = mockDatabase[jobId];
+
+            if (!jobData) {
+                // กรณีไม่พบรหัส
+                resultSection.classList.add('hidden');
+                errorBox.classList.remove('hidden');
+                currentActiveJobId = null;
+                return;
+            }
+
+            // กรณีพบรหัส
+            currentActiveJobId = jobId;
+            errorBox.classList.add('hidden');
+            resultSection.classList.remove('hidden');
+
+            // อัปเดตข้อมูลรายละเอียดตัวอย่าง
+            document.getElementById('displayJobId').textContent = jobData.id;
+            document.getElementById('displaySampleName').textContent = jobData.sampleName;
+            document.getElementById('displayClient').textContent = jobData.client;
+            document.getElementById('displayDate').textContent = jobData.receivedDate;
+
+            // อัปเดต Badge สถานะปัจจุบันด้านบน
+            const statusBadge = document.getElementById('displayCurrentStatusBadge');
+            if (jobData.stage === 4) {
+                statusBadge.innerHTML = `
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                    ${jobData.statusText}
+                `;
+            } else {
+                statusBadge.innerHTML = `
+                    <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
+                    ${jobData.statusText}
+                `;
+            }
+
+            // วาด Process Flow ทั้ง 4 ขั้นตอนตาม Logic ที่กำหนด
+            renderProcessFlow(jobData);
+
+            // อัปเดตปุ่มจำลอง Database
+            const simBtn = document.getElementById('simulateNextBtn');
+            if (jobData.stage >= 4) {
+                simBtn.innerHTML = `<i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>รีเซ็ตกลับไปเริ่มทดสอบใหม่</span>`;
+            } else {
+                simBtn.innerHTML = `<i data-lucide="fast-forward" class="w-3.5 h-3.5"></i><span>จำลอง DB: อัปเดตขั้นถัดไป</span>`;
+            }
+
+            // เรียกใช้ Lucide Icons ใหม่สำหรับ Element ที่เพิ่งสร้าง
+            lucide.createIcons();
+        }
+
+        // ฟังก์ชันสร้าง UI ของแต่ละขั้นตอนตามเงื่อนไขสีและการกระพริบ
+        function renderProcessFlow(jobData) {
+            const container = document.getElementById('stepsContainer');
+            const desktopLine = document.getElementById('desktopProgressLine');
+            container.innerHTML = '';
+
+            const currentStage = jobData.stage;
+
+            // คำนวณความกว้างเส้นเชื่อมสีเขียวบน Desktop (0%, 25%, 50%, 76%)
+            const lineWidths = { 1: '25%', 2: '50%', 3: '76%', 4: '76%' };
+            desktopLine.style.width = lineWidths[currentStage] || '0%';
+
+            stepDefinitions.forEach((step, index) => {
+                const stepNum = step.stepNumber;
+                let state = 'faded'; // 'solid' (เขียวค้าง), 'blinking' (เขียวกระพริบ), 'faded' (สีจาง)
+
+                /**
+                 * ตรวจสอบเงื่อนไขตามที่ระบุ:
+                 * - ขั้นที่ 1: รับตัวอย่างระบบ -> เป็นสีเขียวเสมอ (solid)
+                 * - ขั้นที่ 2: กำลังทดสอบ -> stage 1 = blinking, stage >= 2 = solid
+                 * - ขั้นที่ 3: รอชำระเงิน -> stage 1 = faded, stage 2 = blinking, stage >= 3 = solid
+                 * - ขั้นที่ 4: พร้อมส่งมอบผล -> stage 1-2 = faded, stage 3 = blinking, stage 4 = solid
+                 */
+                if (stepNum === 1) {
+                    state = 'solid';
+                } else if (stepNum === 2) {
+                    if (currentStage === 1) state = 'blinking';
+                    else if (currentStage >= 2) state = 'solid';
+                } else if (stepNum === 3) {
+                    if (currentStage < 2) state = 'faded';
+                    else if (currentStage === 2) state = 'blinking';
+                    else if (currentStage >= 3) state = 'solid';
+                } else if (stepNum === 4) {
+                    if (currentStage < 3) state = 'faded';
+                    else if (currentStage === 3) state = 'blinking';
+                    else if (currentStage === 4) state = 'solid';
+                }
+
+                // กำหนด Class CSS ตามสถานะ (solid / blinking / faded)
+                let circleClasses = '';
+                let ringHtml = '';
+                let titleClasses = '';
+                let subtitleClasses = '';
+                let badgeHtml = '';
+                let mobileLineColor = state === 'solid' ? 'bg-emerald-500' : 'bg-slate-200';
+
+                if (state === 'solid') {
+                    // สีเขียวคงที่ (เสร็จสิ้นแล้ว)
+                    circleClasses = 'bg-emerald-500 text-white border-4 border-emerald-100 shadow-md shadow-emerald-500/20';
+                    titleClasses = 'text-slate-900 font-bold';
+                    subtitleClasses = 'text-slate-600';
+                    badgeHtml = `<span class="inline-block mt-2 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">เสร็จสิ้น</span>`;
+                } else if (state === 'blinking') {
+                    // สีเขียวกระพริบ (กำลังดำเนินการในขั้นตอนนี้)
+                    circleClasses = 'bg-emerald-500 text-white border-4 border-emerald-200 animate-pulse-fast shadow-lg shadow-emerald-500/40';
+                    // เพิ่มวงแหวน Ping ด้านหลังเพื่อให้เห็นเอฟเฟกต์กระพริบชัดเจนและสวยงาม
+                    ringHtml = `<span class="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60"></span>`;
+                    titleClasses = 'text-emerald-700 font-bold';
+                    subtitleClasses = 'text-emerald-600 font-medium';
+                    badgeHtml = `<span class="inline-flex items-center gap-1 mt-2 text-[11px] font-semibold text-white bg-emerald-500 px-2.5 py-0.5 rounded-full animate-pulse">
+                                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> กำลังดำเนินการ
+                                 </span>`;
+                } else {
+                    // สีจาง (ยังไม่ถึงขั้นตอนนี้)
+                    circleClasses = 'bg-slate-100 text-slate-400 border-4 border-white';
+                    titleClasses = 'text-slate-400 font-medium';
+                    subtitleClasses = 'text-slate-400/80';
+                    badgeHtml = `<span class="inline-block mt-2 text-[11px] font-normal text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">รอดำเนินการ</span>`;
+                }
+
+                // สร้าง HTML ของแต่ละ Step
+                const stepEl = document.createElement('div');
+                stepEl.className = 'relative flex md:flex-col items-start md:items-center md:text-center gap-4 md:gap-0';
+                
+                stepEl.innerHTML = `
+                    <!-- เส้นเชื่อมแนวตั้งสำหรับหน้าจอมือถือ (ยกเว้นตัวสุดท้าย) -->
+                    ${index < 3 ? `<div class="md:hidden absolute top-14 left-7 w-1 h-full -ml-0.5 ${mobileLineColor} z-0"></div>` : ''}
+
+                    <!-- วงกลมไอคอนสถานะ -->
+                    <div class="relative z-10 flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 ${circleClasses}">
+                        ${ringHtml}
+                        <i data-lucide="${step.icon}" class="w-6 h-6 relative z-10"></i>
+                    </div>
+
+                    <!-- ข้อความรายละเอียดขั้นตอน -->
+                    <div class="md:mt-4 flex-grow">
+                        <div class="text-xs font-semibold text-slate-400 mb-0.5">ขั้นตอนที่ ${stepNum}</div>
+                        <h5 class="text-sm sm:text-base leading-snug transition-colors ${titleClasses}">${step.title}</h5>
+                        <p class="text-xs mt-1 leading-relaxed ${subtitleClasses}">${step.subtitle}</p>
+                        
+                        <!-- ป้ายสถานะ -->
+                        <div>${badgeHtml}</div>
+
+                        <!-- เวลาอัปเดต -->
+                        <div class="text-[11px] text-slate-400 mt-1.5 font-mono">
+                            ${jobData.timestamps[index]}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(stepEl);
+            });
+        }
+
+        // ฟังก์ชันจำลองการอัปเดตข้อมูลฝั่ง Database (ให้กดทดสอบเปลี่ยนสถานะได้ต่อเนื่อง)
+        function simulateDatabaseUpdate() {
+            if (!currentActiveJobId) return;
+            const job = mockDatabase[currentActiveJobId];
+            
+            if (job.stage < 4) {
+                job.stage += 1;
+            } else {
+                // ถ้ายืนยันครบ 4 ขั้นแล้ว กดอีกทีให้รีเซ็ตกลับไปขั้นที่ 1
+                job.stage = 1;
+            }
+
+            // อัปเดตข้อความสถานะและเวลาจำลอง
+            const now = new Date();
+            const timeStr = `อัปเดตจำลอง ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            if (job.stage === 1) {
+                job.statusText = 'อยู่ในระหว่างการทดสอบ';
+                job.timestamps = [job.timestamps[0], 'กำลังดำเนินการ...', '-', '-'];
+            } else if (job.stage === 2) {
+                job.statusText = 'ทดสอบเสร็จแล้ว รอชำระเงิน';
+                job.timestamps[1] = timeStr;
+                job.timestamps[2] = 'รอชำระเงิน...';
+                job.timestamps[3] = '-';
+            } else if (job.stage === 3) {
+                job.statusText = 'ชำระเงินแล้ว รอส่งมอบผล';
+                job.timestamps[2] = timeStr;
+                job.timestamps[3] = 'กำลังจัดเตรียมเอกสาร...';
+            } else if (job.stage === 4) {
+                job.statusText = 'ส่งมอบผลการทดสอบเรียบร้อยแล้ว';
+                job.timestamps[3] = timeStr;
+            }
+
+            // สั่งวาดหน้าจอใหม่
+            trackJob(currentActiveJobId);
+        }
+    </script>
+</body>
+</html>
